@@ -1,0 +1,19 @@
+name: Core and client checks
+on: [push, pull_request]
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build/core -DCMAKE_BUILD_TYPE=Debug
+      - run: cmake --build build/core
+      - run: ctest --test-dir build/core --output-on-failure
+  desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build/client -A x64
+      - run: cmake --build build/client --config Release
+      - run: ctest --test-dir build/client -C Release --output-on-failure
+  # Driver builds and hardware acceptance require a separately provisioned WDK
+  # machine. This workflow does not load kernel code on a hosted runner.
